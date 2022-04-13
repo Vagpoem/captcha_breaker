@@ -46,6 +46,13 @@
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>3.2.0</version>
         </dependency>
+
+        <!-- FastJson 依赖，用于接口返回 JSON 格式的数据结果 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.80</version>
+        </dependency>
     </dependencies>
 
     <build>

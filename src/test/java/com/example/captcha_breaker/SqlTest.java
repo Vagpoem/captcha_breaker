@@ -121,4 +121,16 @@ public class SqlTest {
         log.info("select order list:"+list1.toString());
     }
 
+    @Test
+    void selectOneTest(){
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("name", "user3");
+        User user = userMapper.selectOne(wrapper);
+        if (user == null){
+            log.info("user is null!");
+        } else {
+            log.info("user is not null!");
+        }
+    }
+
 }
