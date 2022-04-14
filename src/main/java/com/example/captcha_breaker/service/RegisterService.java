@@ -2,6 +2,7 @@ package com.example.captcha_breaker.service;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.example.captcha_breaker.bean.GlobalVariable;
 import com.example.captcha_breaker.entity.User;
 import com.example.captcha_breaker.util.Util;
 import lombok.extern.slf4j.Slf4j;
@@ -14,10 +15,12 @@ public class RegisterService {
 
     RedisService redisService;
     UserService userService;
+    GlobalVariable globalVariable;
 
-    public RegisterService(UserService userService, RedisService redisService) {
+    public RegisterService(UserService userService, RedisService redisService, GlobalVariable globalVariable) {
         this.userService = userService;
         this.redisService = redisService;
+        this.globalVariable = globalVariable;
     }
 
     /*
@@ -73,22 +76,29 @@ public class RegisterService {
         // 3.向数据库中插入数据
         try {
             userService.insertOneUser(user);
+            log.info("after insert user info:"+user);
         } catch (Exception e) {
             log.error("insert into mysql failed!");
             return false;
         }
 
         // 4.生成登陆状态 token 并保存至 Redis
-        UUID temp = UUID.randomUUID();
-        String login_token = temp + " " + System.currentTimeMillis();
         try {
-            redisService.setString(name, login_token);
-            log.info("insert login_token into redis success! login_token:"+redisService.getString(name));
+            redisService.setToken(name);
+            log.info("insert login_token into redis success! login_token:"+redisService.getToken(name));
         } catch (Exception e) {
             log.error("insert login_token into redis failed!");
         }
 
-        // 5.返回结果
+        // 5.将用户数据放至缓存
+        try {
+            redisService.setObject(name+globalVariable.getLogin_user_suffix(), user);
+            log.info("insert login user into redis:"+user);
+        } catch (Exception e) {
+            log.error("insert login user into redis error!");
+        }
+
+        // 6.返回结果
         return true;
     }
 }

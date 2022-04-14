@@ -2,6 +2,7 @@ package com.example.captcha_breaker.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.example.captcha_breaker.util.Result;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,6 +15,6 @@ public class HeartBeatController {
 
         // 返回查询结果
 
-        return new JSONObject();
+        return Result.success();
     }
 }
