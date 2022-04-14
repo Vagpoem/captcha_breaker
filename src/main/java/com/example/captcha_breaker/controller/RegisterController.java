@@ -3,8 +3,6 @@ package com.example.captcha_breaker.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.example.captcha_breaker.service.RegisterService;
 import com.example.captcha_breaker.util.Result;
-import com.example.captcha_breaker.util.Util;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,8 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class RegisterController {
 
-    @Autowired
     RegisterService registerService;
+
+    public RegisterController(RegisterService registerService) {
+        this.registerService = registerService;
+    }
 
     @PostMapping("/register")
     public JSONObject register(@RequestBody JSONObject req){

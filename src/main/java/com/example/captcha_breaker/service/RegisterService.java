@@ -2,22 +2,23 @@ package com.example.captcha_breaker.service;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.captcha_breaker.entity.User;
-import com.example.captcha_breaker.mapper.UserMapper;
 import com.example.captcha_breaker.util.Util;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.UUID;
 
 @Slf4j
 @Service
 public class RegisterService {
 
-    @Autowired
-    UserMapper userMapper;
+    RedisService redisService;
+    UserService userService;
+
+    public RegisterService(UserService userService, RedisService redisService) {
+        this.userService = userService;
+        this.redisService = redisService;
+    }
 
     /*
         注册参数的检验
@@ -52,13 +53,8 @@ public class RegisterService {
         String email = req.getString("email");
 
         // 1.先查重
-        QueryWrapper<User> wrapper1 = new QueryWrapper<>();
-        wrapper1.eq("name", name);
-        User nameUser = userMapper.selectOne(wrapper1);
-
-        QueryWrapper<User> wrapper2 = new QueryWrapper<>();
-        wrapper2.eq("email", email);
-        User emailUser = userMapper.selectOne(wrapper2);
+        User nameUser = userService.selectOneByName(name);
+        User emailUser = userService.selectOneByEmail(email);
 
         if (nameUser != null || emailUser != null){
             log.error("register user is repeated!");
@@ -75,21 +71,24 @@ public class RegisterService {
         user.setCall_token(call_token+""+System.currentTimeMillis());
 
         // 3.向数据库中插入数据
-        int res = 0;
         try {
-            res = userMapper.insert(user);
+            userService.insertOneUser(user);
         } catch (Exception e) {
             log.error("insert into mysql failed!");
             return false;
         }
 
-        // 4.返回是否成功
-        if (res == 1) {
-            log.info("insert into mysql success!");
-            return true;
-        } else {
-            log.error("insert into mysql failed!");
-            return false;
+        // 4.生成登陆状态 token 并保存至 Redis
+        UUID temp = UUID.randomUUID();
+        String login_token = temp + " " + System.currentTimeMillis();
+        try {
+            redisService.setString(name, login_token);
+            log.info("insert login_token into redis success! login_token:"+redisService.getString(name));
+        } catch (Exception e) {
+            log.error("insert login_token into redis failed!");
         }
+
+        // 5.返回结果
+        return true;
     }
 }
