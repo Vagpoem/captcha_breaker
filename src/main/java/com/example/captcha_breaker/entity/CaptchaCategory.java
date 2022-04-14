@@ -18,6 +18,9 @@ public class CaptchaCategory {
     @TableField(value = "category_desc")
     private String category_desc;
 
+    @TableField(value = "points_consume")
+    private int points_consume;
+
     @TableField(value = "update_time")
     private long update_time;
 }

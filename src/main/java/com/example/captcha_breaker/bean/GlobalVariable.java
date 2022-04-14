@@ -12,4 +12,7 @@ public class GlobalVariable {
 
     @Value("${login.user.suffix}")
     private String login_user_suffix;
+
+    @Value("${retry.times}")
+    private int retry_times;
 }

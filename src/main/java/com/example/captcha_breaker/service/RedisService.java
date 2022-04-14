@@ -61,6 +61,22 @@ public class RedisService {
         return getString(name+globalVariable.getLogin_token_suffix());
     }
 
+    public boolean checkToken(String name, String token){
+        try {
+            String temp = getToken(name);
+            if (temp.equals(token)){
+                setString(name+globalVariable.getLogin_token_suffix(), token);
+                log.info("token is right!");
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("token is wrong!");
+            return false;
+        }
+    }
+
     public void setObject(Object key, Object value) throws Exception{
         ValueOperations ops = redisTemplate.opsForValue();
         ops.set(key, value, OBJECT_VALUE_TIME_OUT, TimeUnit.SECONDS);
